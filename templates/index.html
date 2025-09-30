@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. Visa Assessment Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark: #1a202c;
+            --light: #f7fafc;
+            --glass: rgba(255, 255, 255, 0.25);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            font-weight: 300;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+
+        .form-header {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 40px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-header h2 {
+            font-size: 2rem;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            color: rgba(255,255,255,0.8);
+            font-size: 1.1rem;
+        }
+
+        .form-content {
+            padding: 50px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .section-title i {
+            font-size: 1.6rem;
+            background: var(--accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .custom-select {
+            position: relative;
+            width: 100%;
+        }
+
+        .select-trigger {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 18px 50px 18px 20px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .select-trigger::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .select-trigger:hover::before {
+            left: 100%;
+        }
+
+        .select-trigger:hover,
+        .select-trigger.active {
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .select-trigger::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+        }
+
+        .select-trigger.active::after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .select-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 5px;
+        }
+
+        .select-options.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .select-option {
+            padding: 15px 20px;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .select-option:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .select-option:last-child {
+            border-bottom: none;
+        }
+
+        .form-input {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 18px 20px;
+            color: white;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .submit-section {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .submit-btn {
+            background: var(--accent);
+            border: none;
+            border-radius: 50px;
+            padding: 20px 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3);
+            position: relative;
+            overflow: hidden;
+            min-width: 300px;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(79, 172, 254, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .required {
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2.5rem; }
+            .form-content { padding: 30px; }
+            .form-grid { grid-template-columns: 1fr; gap: 20px; }
+            .submit-btn { min-width: 250px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-passport"></i> VISA PORTAL</h1>
+            <p class="subtitle">Advanced AI-Powered Assessment System</p>
+        </div>
+        
+        <div class="form-container">
+            <div class="form-header">
+                <h2>Application Assessment</h2>
+                <p>Complete evaluation in minutes</p>
+            </div>
+            
+            <div class="form-content">
+                <form action="/predict" method="post">
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="fas fa-user-circle"></i>
+                            Personal Information
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Country/Region <span class="required">*</span></label>
+                                <div class="custom-select">
+                                    <div class="select-trigger" data-name="continent">
+                                        <span>Select your country/region</span>
+                                    </div>
+                                    <div class="select-options">
+                                        <div class="select-option" data-value="Asia">🌏 Asia</div>
+                                        <div class="select-option" data-value="Europe">🇪🇺 Europe</div>
+                                        <div class="select-option" data-value="North America">🇺🇸 North America</div>
+                                        <div class="select-option" data-value="South America">🌎 South America</div>
+                                        <div class="select-option" data-value="Africa">🌍 Africa</div>
+                                        <div class="select-option" data-value="Oceania">🇦🇺 Oceania</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="continent" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Education Level <span class="required">*</span></label>
+                                <div class="custom-select">
+                                    <div class="select-trigger" data-name="education_of_employee">
+                                        <span>Select education level</span>
+                                    </div>
+                                    <div class="select-options">
+                                        <div class="select-option" data-value="High School">🎓 High School</div>
+                                        <div class="select-option" data-value="Bachelor's">🎓 Bachelor's Degree</div>
+                                        <div class="select-option" data-value="Master's">🎓 Master's Degree</div>
+                                        <div class="select-option" data-value="Doctorate">🎓 Doctorate/PhD</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="education_of_employee" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="fas fa-briefcase"></i>
+                            Employment Profile
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Job Experience <span class="required">*</span></label>
+                                <div class="custom-select">
+                                    <div class="select-trigger" data-name="has_job_experience">
+                                        <span>Do you have job experience?</span>
+                                    </div>
+                                    <div class="select-options">
+                                        <div class="select-option" data-value="Y">✅ Yes, I have experience</div>
+                                        <div class="select-option" data-value="N">❌ No experience</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="has_job_experience" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Training Required <span class="required">*</span></label>
+                                <div class="custom-select">
+                                    <div class="select-trigger" data-name="requires_job_training">
+                                        <span>Will you need job training?</span>
+                                    </div>
+                                    <div class="select-options">
+                                        <div class="select-option" data-value="Y">✅ Yes, training needed</div>
+                                        <div class="select-option" data-value="N">❌ No training needed</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="requires_job_training" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Employment Type <span class="required">*</span></label>
+                                <div class="custom-select">
+                                    <div class="select-trigger" data-name="full_time_position">
+                                        <span>Select employment type</span>
+                                    </div>
+                                    <div class="select-options">
+                                        <div class="select-option" data-value="Y">💼 Full-Time Position</div>
+                                        <div class="select-option" data-value="N">⏰ Part-Time Position</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="full_time_position" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Work Region <span class="required">*</span></label>
+                                <div class="custom-select">
+                                    <div class="select-trigger" data-name="region_of_employment">
+                                        <span>Select work region</span>
+                                    </div>
+                                    <div class="select-options">
+                                        <div class="select-option" data-value="Northeast">🏙️ Northeast</div>
+                                        <div class="select-option" data-value="South">🌴 South</div>
+                                        <div class="select-option" data-value="West">🏔️ West</div>
+                                        <div class="select-option" data-value="Midwest">🌾 Midwest</div>
+                                        <div class="select-option" data-value="Island">🏝️ Island</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="region_of_employment" required>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="fas fa-money-bill-wave"></i>
+                            Compensation Package
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Salary Amount <span class="required">*</span></label>
+                                <input type="number" name="prevailing_wage" class="form-input" step="0.01" min="0" placeholder="Enter salary amount" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Pay Frequency <span class="required">*</span></label>
+                                <div class="custom-select">
+                                    <div class="select-trigger" data-name="unit_of_wage">
+                                        <span>Select pay frequency</span>
+                                    </div>
+                                    <div class="select-options">
+                                        <div class="select-option" data-value="Year">📅 Annual</div>
+                                        <div class="select-option" data-value="Month">📆 Monthly</div>
+                                        <div class="select-option" data-value="Week">📋 Weekly</div>
+                                        <div class="select-option" data-value="Hour">⏱️ Hourly</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="unit_of_wage" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="submit-section">
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-rocket"></i> Launch Assessment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.custom-select').forEach(select => {
+            const trigger = select.querySelector('.select-trigger');
+            const options = select.querySelector('.select-options');
+            const hiddenInput = select.parentNode.querySelector('input[type="hidden"]');
+            
+            trigger.addEventListener('click', () => {
+                document.querySelectorAll('.select-options.active').forEach(opt => {
+                    if (opt !== options) {
+                        opt.classList.remove('active');
+                        opt.parentNode.querySelector('.select-trigger').classList.remove('active');
+                    }
+                });
+                
+                options.classList.toggle('active');
+                trigger.classList.toggle('active');
+            });
+            
+            options.querySelectorAll('.select-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const value = option.dataset.value;
+                    const text = option.textContent;
+                    
+                    trigger.querySelector('span').textContent = text;
+                    hiddenInput.value = value;
+                    
+                    options.classList.remove('active');
+                    trigger.classList.remove('active');
+                });
+            });
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.custom-select')) {
+                document.querySelectorAll('.select-options.active').forEach(options => {
+                    options.classList.remove('active');
+                    options.parentNode.querySelector('.select-trigger').classList.remove('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
