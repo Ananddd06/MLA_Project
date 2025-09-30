@@ -1,5 +1,10 @@
-preprocessor.pkl
-visa_model.pkl
-.venv
+venv/
 __pycache__/
-catboost_info
+*.pyc
+.env
+.DS_Store
+catboost_info/
+*.log
+test_*.py
+save_model.py
+EDA_Visa_US.ipynb
