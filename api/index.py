@@ -1,42 +1,59 @@
 from flask import Flask, request, render_template, jsonify
-import joblib
-import pandas as pd
-import numpy as np
+import json
 import os
 
 app = Flask(__name__, template_folder='../templates')
 
-# Load lightweight model and encoders
-model_path = os.path.join(os.path.dirname(__file__), '..', 'lightweight_model.pkl')
-encoders_path = os.path.join(os.path.dirname(__file__), '..', 'encoders.pkl')
-
-model = joblib.load(model_path)
-encoders = joblib.load(encoders_path)
-
-def preprocess_input(data):
-    # Create DataFrame
-    df = pd.DataFrame([data])
+# Simple rule-based prediction (no ML dependencies)
+def predict_visa(data):
+    score = 0
     
-    # Add company_age and no_of_employees with defaults
-    df['company_age'] = 15
-    df['no_of_employees'] = 1000
+    # Education scoring
+    education_scores = {
+        "Doctorate": 4, "Master's": 3, "Bachelor's": 2, "High School": 1
+    }
+    score += education_scores.get(data.get('education_of_employee', ''), 1)
     
-    # Encode categorical variables
-    for col in ['continent', 'education_of_employee', 'has_job_experience', 
-                'requires_job_training', 'region_of_employment', 'unit_of_wage', 
-                'full_time_position']:
-        if col in df.columns:
-            try:
-                df[col] = encoders[col].transform(df[col])
-            except:
-                df[col] = 0  # Default for unknown values
+    # Experience scoring
+    if data.get('has_job_experience') == 'Y':
+        score += 2
     
-    # Ensure correct column order
-    expected_cols = ['continent', 'education_of_employee', 'has_job_experience',
-                    'requires_job_training', 'no_of_employees', 'region_of_employment',
-                    'prevailing_wage', 'unit_of_wage', 'full_time_position', 'company_age']
+    # Training requirement (inverse scoring)
+    if data.get('requires_job_training') == 'N':
+        score += 1
     
-    return df[expected_cols].values
+    # Full-time position
+    if data.get('full_time_position') == 'Y':
+        score += 1
+    
+    # Wage scoring (simplified)
+    wage = float(data.get('prevailing_wage', 0))
+    if wage > 80000:
+        score += 2
+    elif wage > 50000:
+        score += 1
+    
+    # Region scoring (some regions have higher approval rates)
+    region_scores = {
+        "West": 2, "Northeast": 2, "South": 1, "Midwest": 1, "Island": 0
+    }
+    score += region_scores.get(data.get('region_of_employment', ''), 0)
+    
+    # Continent scoring
+    continent_scores = {
+        "Asia": 1, "Europe": 2, "North America": 2, 
+        "South America": 1, "Africa": 1, "Oceania": 1
+    }
+    score += continent_scores.get(data.get('continent', ''), 0)
+    
+    # Determine prediction based on score
+    max_score = 13
+    confidence = min(score / max_score, 1.0)
+    
+    if score >= 8:
+        return "Certified", confidence * 100
+    else:
+        return "Denied", (1 - confidence) * 100
 
 @app.route('/')
 def home():
@@ -56,12 +73,7 @@ def predict():
             'full_time_position': request.form['full_time_position']
         }
         
-        X = preprocess_input(data)
-        prediction = model.predict(X)[0]
-        proba = model.predict_proba(X)[0]
-        
-        result = "Denied" if prediction == 1 else "Certified"
-        confidence = max(proba) * 100
+        result, confidence = predict_visa(data)
         
         return render_template('result.html', 
                              prediction=result, 
@@ -74,19 +86,16 @@ def predict():
 def api_predict():
     try:
         data = request.get_json()
-        X = preprocess_input(data)
-        prediction = model.predict(X)[0]
-        proba = model.predict_proba(X)[0]
+        result, confidence = predict_visa(data)
         
-        result = "Denied" if prediction == 1 else "Certified"
-        confidence = max(proba)
+        conf_decimal = confidence / 100
         
         return jsonify({
             'prediction': result,
-            'confidence': round(confidence, 4),
+            'confidence': round(conf_decimal, 4),
             'probabilities': {
-                'certified': round(proba[0], 4),
-                'denied': round(proba[1], 4)
+                'certified': round(conf_decimal if result == "Certified" else 1-conf_decimal, 4),
+                'denied': round(1-conf_decimal if result == "Certified" else conf_decimal, 4)
             }
         })
     
