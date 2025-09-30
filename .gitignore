@@ -1,0 +1,5 @@
+preprocessor.pkl
+visa_model.pkl
+.venv
+__pycache__/
+catboost_info
