@@ -6,6 +6,3 @@ __pycache__/
 catboost_info/
 *.log
 test_*.py
-save_model.py
-create_lightweight_model.py
-EasyVisa.csv
