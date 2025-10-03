@@ -8,6 +8,4 @@ catboost_info/
 test_*.py
 save_model.py
 create_lightweight_model.py
-EDA_Visa_US.ipynb
-Feature_Engineering.ipynb
 EasyVisa.csv

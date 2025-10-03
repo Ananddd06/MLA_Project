@@ -26,11 +26,23 @@ def predict_visa(data):
     if data.get('full_time_position') == 'Y':
         score += 1
     
-    # Wage scoring (simplified)
+    # Wage scoring with unit conversion
     wage = float(data.get('prevailing_wage', 0))
-    if wage > 80000:
+    unit = data.get('unit_of_wage', 'Year')
+    
+    # Convert to annual salary
+    if unit == 'Month':
+        annual_wage = wage * 12
+    elif unit == 'Week':
+        annual_wage = wage * 52
+    elif unit == 'Hour':
+        annual_wage = wage * 2080  # 40 hours/week * 52 weeks
+    else:  # Year
+        annual_wage = wage
+    
+    if annual_wage > 80000:
         score += 2
-    elif wage > 50000:
+    elif annual_wage > 50000:
         score += 1
     
     # Region scoring (some regions have higher approval rates)
