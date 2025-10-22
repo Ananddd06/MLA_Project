@@ -9,7 +9,7 @@ from imblearn.combine import SMOTEENN
 from sklearn.model_selection import train_test_split
 
 # Load and prepare data
-df = pd.read_csv("/Users/anand/Desktop/MLA_Project/EasyVisa.csv")
+df = pd.read_csv("/Users/anand/Desktop/MLA_Project/Notebooks/EasyVisa.csv")
 
 # Drop case_id
 df.drop('case_id', inplace=True, axis=1)
